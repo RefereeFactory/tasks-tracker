@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gentle Reminders — Your Little Task Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;1,9..144,400&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#fdf9f3;
+    --paper:#ffffff;
+    --ink:#4a4038;
+    --soft:#8a7d70;
+    --sage:#8caa8b;
+    --sage-dark:#6e9070;
+    --peach:#f4c9a3;
+    --rose:#e8a598;
+    --gap:#c9583f;
+    --line:#eaded0;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:'Nunito',sans-serif;
+    background:var(--cream);
+    color:var(--ink);
+    line-height:1.6;
+    font-size:18px;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{font-family:'Fraunces',serif;font-weight:600;line-height:1.2;}
+
+  /* Hero */
+  header{
+    text-align:center;
+    padding:38px 20px 30px;
+    background:
+      radial-gradient(circle at 20% 15%, rgba(244,201,163,.5), transparent 45%),
+      radial-gradient(circle at 85% 25%, rgba(140,170,139,.35), transparent 45%),
+      var(--cream);
+  }
+  .sun{font-size:3rem;display:block;margin-bottom:6px;animation:float 5s ease-in-out infinite;}
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+  header h1{font-size:2.3rem;margin-bottom:8px;}
+  header p{color:var(--soft);max-width:440px;margin:0 auto;font-size:1.05rem;}
+
+  .wrap{max-width:640px;margin:0 auto;padding:0 18px 60px;}
+
+  /* Add card */
+  .card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:22px;
+    padding:24px 22px;
+    box-shadow:0 10px 30px rgba(120,100,80,.07);
+    margin-top:-8px;
+  }
+  label{font-weight:700;display:block;margin-bottom:8px;font-size:1.05rem;}
+  input[type=text], input[type=datetime-local]{
+    width:100%;
+    font-family:'Nunito',sans-serif;
+    font-size:1.1rem;
+    padding:15px 16px;
+    border:2px solid var(--line);
+    border-radius:16px;
+    background:var(--cream);
+    color:var(--ink);
+    transition:border-color .2s;
+    min-height:52px;
+  }
+  input:focus{outline:none;border-color:var(--sage);}
+  .field{margin-bottom:18px;}
+
+  .row{display:flex;gap:10px;align-items:stretch;}
+  .row input{flex:1;}
+
+  button{
+    font-family:'Nunito',sans-serif;
+    cursor:pointer;
+    border:none;
+    border-radius:16px;
+    font-weight:700;
+    transition:transform .12s ease, box-shadow .2s, background .2s;
+  }
+  button:active{transform:scale(.96);}
+
+  .mic{
+    min-width:56px;min-height:52px;
+    background:var(--peach);
+    font-size:1.4rem;
+    color:var(--ink);
+    box-shadow:0 4px 12px rgba(244,201,163,.5);
+  }
+  .mic.listening{
+    background:var(--rose);
+    animation:pulse 1.2s infinite;
+  }
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(232,165,152,.6)}70%{box-shadow:0 0 0 14px rgba(232,165,152,0)}100%{box-shadow:0 0 0 0 rgba(232,165,152,0)}}
+
+  .add-btn{
+    width:100%;
+    background:var(--sage);
+    color:#fff;
+    font-size:1.15rem;
+    padding:16px;
+    min-height:56px;
+    box-shadow:0 6px 16px rgba(110,144,112,.35);
+  }
+  .add-btn:hover{background:var(--sage-dark);}
+
+  .hint{font-size:.92rem;color:var(--soft);margin-top:10px;text-align:center;}
+
+  /* Ledger */
+  .ledger-head{
+    display:flex;align-items:center;justify-content:space-between;
+    margin:38px 4px 14px;
+  }
+  .ledger-head h2{font-size:1.6rem;}
+  .count{
+    background:var(--peach);
+    color:var(--ink);
+    font-weight:700;
+    padding:3px 14px;
+    border-radius:20px;
+    font-size:.95rem;
+  }
+
+  .empty{
+    text-align:center;
+    color:var(--soft);
+    padding:40px 20px;
+    background:var(--paper);
+    border:2px dashed var(--line);
+    border-radius:22px;
+  }
+  .empty .big{font-size:2.5rem;display:block;margin-bottom:10px;}
+
+  ul{list-style:none;}
+  .task{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-left:6px solid var(--sage);
+    border-radius:18px;
+    padding:18px 18px;
+    margin-bottom:14px;
+    box-shadow:0 6px 18px rgba(120,100,80,.05);
+    display:flex;
+    gap:14px;
+    align-items:flex-start;
+    animation:pop .3s ease;
+  }
+  @keyframes pop{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .task.due{border-left-color:var(--gap);background:#fef4f1;}
+  .task-body{flex:1;min-width:0;}
+  .task-name{font-family:'Fraunces',serif;font-size:1.3rem;word-break:break-word;}
+  .task-when{color:var(--soft);font-size:1rem;margin-top:4px;display:flex;align-items:center;gap:6px;}
+  .task-when.overdue{color:var(--gap);font-weight:700;}
+  .task-actions{display:flex;flex-direction:column;gap:8px;}
+  .icon-btn{
+    background:var(--cream);
+    width:44px;height:44px;
+    font-size:1.1rem;
+    border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .icon-btn.del:hover{background:#fbe4de;}
+  .icon-btn:hover{background:var(--line);}
+
+  /* Edit mode */
+  .task.editing{border-left-color:var(--peach);}
+  .edit-fields{width:100%;}
+  .edit-fields input{margin-bottom:10px;}
+  .edit-save{background:var(--sage);color:#fff;padding:11px 18px;min-height:44px;margin-right:8px;}
+  .edit-cancel{background:var(--cream);border:1px solid var(--line);padding:11px 18px;min-height:44px;}
+
+  /* Gap marker */
+  .gap{
+    display:inline-block;
+    border:2px dashed var(--gap);
+    color:var(--gap);
+    background:#fff5f2;
+    padding:1px 8px;
+    border-radius:8px;
+    font-weight:700;
+    font-size:.9em;
+  }
+
+  /* How it works */
+  .how{
+    margin-top:46px;
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:22px;
+    padding:26px 24px;
+  }
+  .how h2{font-size:1.5rem;margin-bottom:14px;}
+  .how ol{margin-left:4px;padding-left:20px;}
+  .how li{margin-bottom:12px;}
+  .how li b{color:var(--sage-dark);}
+
+  footer{text-align:center;color:var(--soft);font-size:.9rem;padding:24px;}
+
+  .toast{
+    position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(120px);
+    background:var(--ink);color:#fff;padding:14px 22px;border-radius:16px;
+    box-shadow:0 8px 24px rgba(0,0,0,.2);z-index:50;transition:transform .35s ease;
+    font-weight:600;max-width:90%;text-align:center;
+  }
+  .toast.show{transform:translateX(-50%) translateY(0);}
+
+  @media(min-width:600px){
+    header h1{font-size:2.8rem;}
+    body{font-size:19px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="sun">🌼</span>
+  <h1>Gentle Reminders</h1>
+  <p>A cosy little ledger for your tasks. Say it or type it, pick a time, and we'll gently remind you.</p>
+</header>
+
+<div class="wrap">
+
+  <!-- Add task card -->
+  <section class="card" aria-label="Add a reminder">
+    <div class="field">
+      <label for="taskName">What would you like to remember?</label>
+      <div class="row">
+        <input type="text" id="taskName" placeholder="e.g. Take my morning pills" autocomplete="off">
+        <button class="mic" id="micBtn" title="Speak your task" aria-label="Speak your task">🎙️</button>
+      </div>
+    </div>
+    <div class="field">
+      <label for="taskTime">When shall we remind you?</label>
+      <input type="datetime-local" id="taskTime">
+    </div>
+    <button class="add-btn" id="addBtn">＋ Add to my ledger</button>
+    <p class="hint" id="micHint">Tip: tap the 🎙️ and speak — then just pick a time.</p>
+  </section>
+
+  <!-- Ledger -->
+  <div class="ledger-head">
+    <h2>Your Ledger</h2>
+    <span class="count" id="count">0</span>
+  </div>
+  <ul id="ledger"></ul>
+
+  <!-- How it works -->
+  <section class="how">
+    <h2>How it works</h2>
+    <ol>
+      <li><b>Say or type your task.</b> Tap the microphone 🎙️ and speak, or type it into the box.</li>
+      <li><b>Pick a date and time</b> for when you'd like your friendly reminder.</li>
+      <li><b>Tap “Add to my ledger.”</b> Your task appears in the list below, kept safe on this device.</li>
+      <li><b>Need a change?</b> Tap the ✏️ pencil on any task to edit its name or time — or tap the 🎙️ mic, say the task's name aloud, and it will jump to editing.</li>
+      <li><b>When the time comes</b>, the task glows and a gentle chime plays. (Allow notifications for a pop-up too.)</li>
+    </ol>
+  </section>
+
+  <footer>Everything stays private on your own device 💛</footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  const KEY='gentle_reminders_v1';
+  let tasks = JSON.parse(localStorage.getItem(KEY) || '[]');
+  const timers = {};
+
+  const $ = id => document.getElementById(id);
+  const nameInput = $('taskName');
+  const timeInput = $('taskTime');
+  const ledger = $('ledger');
+
+  // Ask notification permission gently
+  if('Notification' in window && Notification.permission==='default'){
+    // request on first interaction
+  }
+
+  function save(){ localStorage.setItem(KEY, JSON.stringify(tasks)); }
+
+  function toast(msg){
+    const t=$('toast'); t.textContent=msg; t.classList.add('show');
+    clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),3200);
+  }
+
+  function fmt(iso){
+    if(!iso) return null;
+    const d=new Date(iso);
+    if(isNaN(d)) return null;
+    return d.toLocaleString(undefined,{weekday:'short',month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+  }
+
+  // simple chime using WebAudio
+  function chime(){
+    try{
+      const ctx=new (window.AudioContext||window.webkitAudioContext)();
+      [0,0.18,0.36].forEach((t,i)=>{
+        const o=ctx.createOscillator(), g=ctx.createGain();
+        o.type='sine'; o.frequency.value=[660,880,990][i];
+        o.connect(g); g.connect(ctx.destination);
+        const s=ctx.currentTime+t;
+        g.gain.setValueAtTime(0,s);
+        g.gain.linearRampToValueAtTime(0.25,s+0.03);
+        g.gain.exponentialRampToValueAtTime(0.001,s+0.6);
+        o.start(s); o.stop(s+0.65);
+      });
+    }catch(e){}
+  }
+
+  function fireReminder(task){
+    task.done=true; save(); render();
+    chime();
+    toast('🔔 Reminder: ' + task.name);
+    if('Notification' in window && Notification.permission==='granted'){
+      new Notification('🌼 Gentle Reminder', {body: task.name});
+    }
+  }
+
+  function scheduleAll(){
+    Object.values(timers).forEach(clearTimeout);
+    const now=Date.now();
+    tasks.forEach(t=>{
+      if(t.done || !t.time) return;
+      const when=new Date(t.time).getTime();
+      const delay=when-now;
+      if(delay<=0) return; // overdue handled visually
+      if(delay < 2147483647){
+        timers[t.id]=setTimeout(()=>fireReminder(t), delay);
+      }
+    });
+  }
+
+  function render(){
+    ledger.innerHTML='';
+    $('count').textContent=tasks.length;
+    if(tasks.length===0){
+      ledger.innerHTML='<div class="empty"><span class="big">📖</span>Your ledger is empty and peaceful.<br>Add your first gentle reminder above.</div>';
+      return;
+    }
+    const now=Date.now();
+    // sort by time, undated last
+    const sorted=[...tasks].sort((a,b)=>{
+      if(!a.time) return 1; if(!b.time) return -1;
+      return new Date(a.time)-new Date(b.time);
+    });
+    sorted.forEach(t=>{
+      const li=document.createElement('li');
+      li.className='task';
+      const whenTxt=fmt(t.time);
+      const overdue = t.time && new Date(t.time).getTime()<now;
+      if(overdue && !t.done) li.classList.add('due');
+
+      if(t.editing){
+        li.classList.add('editing');
+        li.innerHTML=`
+          <div class="edit-fields">
+            <input type="text" class="e-name" value="${escapeHtml(t.name)}">
+            <input type="datetime-local" class="e-time" value="${t.time||''}">
+            <button class="edit-save">Save</button>
+            <button class="edit-cancel">Cancel</button>
+          </div>`;
+        li.querySelector('.edit-save').onclick=()=>{
+          const nv=li.querySelector('.e-name').value.trim();
+          const tv=li.querySelector('.e-time').value;
+          if(!nv){ toast('Please give it a name.'); return; }
+          t.name=nv; t.time=tv||null; t.editing=false; t.done=false;
+          save(); scheduleAll(); render(); toast('Updated ✨');
+        };
+        li.querySelector('.edit-cancel').onclick=()=>{ t.editing=false; render(); };
+      } else {
+        const whenClass = overdue && !t.done ? 'task-when overdue' : 'task-when';
+        const whenLabel = whenTxt
+          ? (overdue && !t.done ? '⏰ '+whenTxt+' (now!)' : '🕑 '+whenTxt)
+          : '<span class="gap">[ADD A DATE & TIME]</span>';
+        li.innerHTML=`
+          <div class="task-body">
+            <div class="task-name">${escapeHtml(t.name)}</div>
+            <div class="${whenClass}">${whenLabel}</div>
+          </div>
+          <div class="task-actions">
+            <button class="icon-btn edit" title="Edit">✏️</button>
+            <button class="icon-btn del" title="Remove">🗑️</button>
+          </div>`;
+        li.querySelector('.edit').onclick=()=>startEdit(t.id);
+        li.querySelector('.del').onclick=()=>{
+          tasks=tasks.filter(x=>x.id!==t.id); save(); render(); toast('Removed.');
+        };
+      }
+      ledger.appendChild(li);
+    });
+  }
+
+  function startEdit(id){
+    tasks.forEach(t=>t.editing=false);
+    const t=tasks.find(x=>x.id===id);
+    if(t){ t.editing=true; render();
+      const el=[...ledger.querySelectorAll('.editing .e-name')][0];
+      if(el){ el.focus(); }
+    }
+  }
+
+  function escapeHtml(s){return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+
+  function addTask(){
+    const name=nameInput.value.trim();
+    if(!name){ toast('Please tell me what to remember 🙂'); nameInput.focus(); return; }
+    const time=timeInput.value;
+    tasks.push({id:Date.now()+''+Math.random().toString(36).slice(2,6), name, time:time||null, done:false, editing:false});
+    save(); scheduleAll(); render();
+    nameInput.value=''; timeInput.value='';
+    toast(time ? 'Added — I\'ll remind you 🌼' : 'Added (no time set yet)');
+    if('Notification' in window && Notification.permission==='default'){ Notification.requestPermission(); }
+  }
+
+  $('addBtn').onclick=addTask;
+  nameInput.addEventListener('keydown',e=>{ if(e.key==='Enter') timeInput.focus(); });
+
+  // ---- Voice ----
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const micBtn=$('micBtn');
+  if(!SR){
+    micBtn.disabled=true; micBtn.style.opacity=.4;
+    $('micHint').textContent='Voice is not supported on this browser — please type instead.';
+  } else {
+    let listening=false;
+    const rec=new SR();
+    rec.lang='en-US'; rec.interimResults=false; rec.maxAlternatives=1;
+
+    micBtn.onclick=()=>{
+      if(listening){ rec.stop(); return; }
+      try{ rec.start(); }catch(e){}
+    };
+    rec.onstart=()=>{ listening=true; micBtn.classList.add('listening'); $('micHint').textContent='Listening… speak now.'; };
+    rec.onend=()=>{ listening=false; micBtn.classList.remove('listening'); $('micHint').textContent='Tip: tap the 🎙️ and speak — then just pick a time.'; };
+    rec.onerror=()=>{ toast('Didn\'t catch that — please try again.'); };
+    rec.onresult=(e)=>{
+      const said=e.results[0][0].transcript.trim();
+      if(!said) return;
+      // Does this match an existing task name? -> open it for editing
+      const match=findTaskByName(said);
+      if(match){
+        startEdit(match.id);
+        toast('Found “'+match.name+'” — edit it here ✏️');
+        match._scroll=true;
+        const li=[...ledger.querySelectorAll('.editing')][0];
+        if(li) li.scrollIntoView({behavior:'smooth',block:'center'});
+      } else {
+        nameInput.value=said;
+        toast('Heard: “'+said+'” — now pick a time.');
+        timeInput.focus();
+      }
+    };
+  }
+
+  function findTaskByName(said){
+    const s=said.toLowerCase().replace(/[.?!]$/,'').trim();
+    // exact-ish then contains
+    let m=tasks.find(t=>t.name.toLowerCase()===s);
+    if(m) return m;
+    m=tasks.find(t=>t.name.toLowerCase().includes(s) || s.includes(t.name.toLowerCase()));
+    return m||null;
+  }
+
+  // sensible default time = next hour
+  (function defaultTime(){
+    const d=new Date(Date.now()+60*60*1000);
+    d.setMinutes(0,0,0);
+    const pad=n=>String(n).padStart(2,'0');
+    timeInput.value=`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  })();
+
+  scheduleAll();
+  render();
+  // refresh overdue styling every 30s
+  setInterval(render, 30000);
+})();
+</script>
+</body>
+</html>
