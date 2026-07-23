@@ -41,6 +41,7 @@
       var(--cream);
   }
   .sun{font-size:3rem;display:block;margin-bottom:6px;animation:float 5s ease-in-out infinite;}
+  .rose{font-size:3rem;display:block;margin-bottom:6px;animation:float 5s ease-in-out infinite;}
   @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
   header h1{font-size:2.3rem;margin-bottom:8px;}
   header p{color:var(--soft);max-width:440px;margin:0 auto;font-size:1.05rem;}
@@ -233,10 +234,22 @@
     body{font-size:19px;}
   }
 </style>
+<script id="factory-store-sdk">
+window.factory=(function(){
+var K="7be8c2cc-8e79-4ebc-864c-9aca45c356d4",U="https://canvbkibjgcnqowjtarf.supabase.co/functions/v1/app-market",A="sb_publishable_sMTQKIeFgT1vwjHnU7Gexg_8CCmhtxs";
+function call(b){b.appKey=K;return fetch(U,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+A},body:JSON.stringify(b)}).then(function(r){return r.json().then(function(d){if(!r.ok)throw new Error(d.error||("store "+r.status));return d;});});}
+return{
+put:function(c,i,d){return call({op:"put",collection:c,id:String(i),data:d}).then(function(x){return x.doc;});},
+get:function(c,i){return call({op:"get",collection:c,id:String(i)}).then(function(x){return x.doc;});},
+list:function(c){return call({op:"list",collection:c}).then(function(x){return x.docs;});},
+remove:function(c,i){return call({op:"delete",collection:c,id:String(i)}).then(function(){return true;});}
+};})();
+</script>
 </head>
 <body>
 
 <header>
+  <span class="rose">🌹</span>
   <span class="sun">🌼</span>
   <h1>Gentle Reminders</h1>
   <p>A cosy little ledger for your tasks. Say it or type it, pick a time, and we'll gently remind you.</p>
