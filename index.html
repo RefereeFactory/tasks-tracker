@@ -186,6 +186,25 @@
     font-size:.9em;
   }
 
+  /* For sale banner */
+  .for-sale{
+    margin-top:46px;
+    background:var(--peach);
+    border:1px solid var(--line);
+    border-radius:22px;
+    padding:22px 24px;
+    text-align:center;
+    color:var(--ink);
+    font-weight:700;
+  }
+  .for-sale .price{
+    display:block;
+    margin-top:6px;
+    font-family:'Fraunces',serif;
+    font-size:1.3rem;
+  }
+  .for-sale a{color:var(--ink);}
+
   /* How it works */
   .how{
     margin-top:46px;
@@ -248,6 +267,12 @@
     <span class="count" id="count">0</span>
   </div>
   <ul id="ledger"></ul>
+
+  <!-- For sale -->
+  <section class="for-sale">
+    Contact owner to buy this app: <a href="tel:07944564176">07944564176</a>
+    <span class="price">Current price £5000</span>
+  </section>
 
   <!-- How it works -->
   <section class="how">
